@@ -1,7 +1,5 @@
-# Banjararide
-
-
-# Run Migration
+# FastAPI Boilerplate
+## Run Migration
 
 Only once
 
@@ -15,6 +13,6 @@ Everytime for migrations
 
 ```aerich upgrade```
 
-Run the app
+## Run the app
 
 uvicorn main:app --reload
