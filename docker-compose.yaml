@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+    postgres:
+        container_name: br-postgres
+        image: postgres:12.6-alpine
+        environment:
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=password123
+            - POSTGRES_DB=banjararide_db
+            - PGDATA=/var/lib/postgres/data
+            - TZ=GMT+5:30
+            - PGTZ=GMT+5:30
+        volumes:
+            - br_postgres:/var/lib/postgres/data
+        ports:
+            - 5433:5432
+        networks:
+            - br_network
+    
+    pgadmin:
+        container_name: br-pgadmin
+        image: dpage/pgadmin4
+        environment:
+            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+            PGADMIN_CONFIG_SERVER_MODE: 'False'
+        volumes:
+            - br_pgadmin:/root/.pgadmin
+        ports:
+            - 8001:80
+        networks:
+            - br_network
+        depends_on: 
+            - postgres
+        restart: unless-stopped
+
+    api:
+        container_name: br-api
+        build: .
+        volumes:
+            - ./app/:/usr/src/app/
+        ports:
+            - 8000:8000
+        environment: 
+            - DATABASE_URL=postgres://admin:password123@postgres/banjararide_db
+        depends_on: 
+            - postgres
+            - pgadmin
+        networks: 
+            - br_network
+
+networks:
+    br_network:
+        driver: bridge
+
+volumes:
+    br_postgres:
+    br_pgadmin:

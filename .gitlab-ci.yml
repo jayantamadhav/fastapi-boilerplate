@@ -1,0 +1,16 @@
+image: alpine:latest
+stages:
+  - deploy
+deploy:
+  stage: deploy
+  before_script:
+    - apk add --update openssh-client bash
+    - apk add git
+    - eval $(ssh-agent -s)
+    - bash -c 'ssh-add <(echo "$SSH_KEY_DEV")'
+    - mkdir ~/.ssh && touch ~/.ssh/known_hosts
+    - ssh-keyscan -t ed25519 $SERVER_IP >> ~/.ssh/known_hosts
+  script:
+    - sh deploy.sh
+  only:
+    - main
